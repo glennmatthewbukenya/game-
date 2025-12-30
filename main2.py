@@ -1,9 +1,10 @@
 import pygame
 import sys
 
-# Setup
+pygame.mixer.init() 
+
 pygame.init()
-pygame.mixer.init() # INITIALIZE SOUND MIXER
+
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Brick game ")
@@ -11,7 +12,7 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 30)
 large_font = pygame.font.SysFont("Arial", 60)
 
-# --- LOAD SOUNDS --
+
 try:
     hit_sound = pygame.mixer.Sound('audio/Boom9.wav')
     death_sound = pygame.mixer.Sound('audio/Jump7.wav')
@@ -20,16 +21,15 @@ except:
     hit_sound = None
     death_sound = None
 
-# Colors
+
 WHITE, BLUE, RED, BLACK, GRAY = (255, 255, 255), (0, 200, 255), (255, 80, 80), (10, 10, 20), (100, 100, 100)
 
-# Game Variables
 game_state = "MENU" 
 score = 0
 lives = 3
 level = 1
 
-# Objects
+
 paddle = pygame.Rect(WIDTH // 2 - 60, HEIGHT - 40, 120, 15)
 ball = pygame.Rect(WIDTH // 2, HEIGHT // 2, 12, 12)
 ball_speed = [5, -5]
@@ -38,20 +38,19 @@ bricks = []
 def reset_game(full_reset=True):
     global score, lives, ball_speed, bricks, level
     
-    # If full_reset is True, we go back to level 1 and score 0 (Main Menu start)
     if full_reset:
         score = 0
         level = 1
     
-    # Always reset lives to 3 for the attempt
+    
     lives = 3
     
-    # Increase ball speed based on current level
+
     current_speed = 4 + level 
     ball_speed = [current_speed, -current_speed]
     
     ball.center = (WIDTH // 2, HEIGHT // 2 + 100)
-    
+
     bricks.clear()
     rows = min(3 + level, 8) 
     for row in range(rows):
@@ -62,7 +61,7 @@ def draw_text(text, font, color, x, y):
     img = font.render(text, True, color)
     screen.blit(img, (x, y))
 
-# Initial brick setup
+
 reset_game()
 
 while True:
@@ -78,7 +77,6 @@ while True:
             if event.button == 1:
                 click = True
 
-    # --- STATE: MENU ---
     if game_state == "MENU":
         draw_text("Brick game", large_font, BLUE, 220, 150)
         
@@ -96,12 +94,12 @@ while True:
 
         if click:
             if play_btn.collidepoint((mx, my)): 
-                reset_game(full_reset=True) # Hard reset for new game
+                reset_game(full_reset=True) 
                 game_state = "PLAYING"
             if inst_btn.collidepoint((mx, my)): game_state = "INSTRUCTIONS"
             if quit_btn.collidepoint((mx, my)): pygame.quit(); sys.exit()
 
-    # --- STATE: INSTRUCTIONS ---
+    
     elif game_state == "INSTRUCTIONS":
         draw_text("How to Play:", font, BLUE, 320, 150)
         draw_text("- Move paddle with mouse", font, WHITE, 250, 220)
@@ -110,7 +108,7 @@ while True:
         draw_text("Click anywhere to go back", font, GRAY, 240, 450)
         if click: game_state = "MENU"
 
-    # --- STATE: PLAYING ---
+    
     elif game_state == "PLAYING":
         paddle.centerx = mx
         ball.x += ball_speed[0]
@@ -135,9 +133,9 @@ while True:
 
         if not bricks:
             level += 1
-            reset_game(full_reset=False) # Soft reset: Proceed to next level
+            reset_game(full_reset=False)
 
-        # HUD
+        
         pygame.draw.line(screen, WHITE, (0, 50), (WIDTH, 50), 2)
         draw_text(f"Score: {score}", font, WHITE, 20, 10)
         draw_text(f"Level: {level}", font, BLUE, 250, 10)
@@ -148,7 +146,7 @@ while True:
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.ellipse(screen, WHITE, ball)
 
-    # --- STATE: GAME OVER ---
+    
     elif game_state == "GAME_OVER":
         draw_text("LIVES EXHAUSTED", large_font, RED, 180, 150)
         draw_text(f"Level Reached: {level} | Score: {score}", font, WHITE, 240, 250)
@@ -164,7 +162,7 @@ while True:
         
         if click:
             if retry_btn.collidepoint((mx, my)):
-                # Reset game but KEEP level (Soft reset)
+                
                 reset_game(full_reset=False) 
                 game_state = "PLAYING"
             if menu_btn.collidepoint((mx, my)):
